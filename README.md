@@ -1,4 +1,4 @@
-# shavar-loadtests
+# antenna-loadtests
 
 generic load test based on ailoads: https://github.com/loads/ailoads
 
@@ -9,9 +9,9 @@ generic load test based on ailoads: https://github.com/loads/ailoads
 
 ## How to run the loadtest?
 
-### For STAGE 
+### For STAGE
 
-    make test -e URL_SERVER=https://shavar.stage.mozaws.net
+    make test -e URL_SERVER=https://antenna.stage.mozaws.net
 
 
 ## How to build the docker image?
