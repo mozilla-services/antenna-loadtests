@@ -11,7 +11,7 @@ generic load test based on ailoads: https://github.com/loads/ailoads
 
 ### For STAGE
 
-    make test -e URL_SERVER=https://antenna.stage.mozaws.net
+    make test -e URL_SERVER=http://antenna.stage.mozaws.net
 
 
 ## How to build the docker image?
