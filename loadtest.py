@@ -11,9 +11,7 @@ DEBUG = True
 
 _LINE = '---------------------------------'
 _CONNECTIONS = {}
-
-PERCENTAGE = 100
-# curl -k  --data "mozstd-track-digest256;a:1" https://shavar.stage.mozaws.net/downloads # noqa
+URL_DMPFILES = 'https://s3-us-west-2.amazonaws.com/fx-test-antenna'
 
 
 def log_header(msg):
@@ -29,11 +27,25 @@ def get_connection(id=None):
     return _CONNECTIONS[id]
 
 
-@scenario(PERCENTAGE)
+def get_dmp_file(name_dmpfile):
+    with open(name_dmpfile, 'wb') as handle:
+        url = '{0}/{1}'.format(URL_DMPFILES, name_dmpfile)
+        response = requests.get(url, stream=True)
+
+        if not response.ok:
+            print('ERROR: unable to download dmpfile from S3 --> Aborting!')
+            exit()
+
+        for block in response.iter_content(1024):
+            handle.write(block)
+
+
+@scenario(100)
 def get_version():
     """Get version from Antenna server"""
 
     conn = get_connection('service-under-test')
+    get_dmp_file('small.dmp')
 
     if DEBUG:
         log_header(list)
