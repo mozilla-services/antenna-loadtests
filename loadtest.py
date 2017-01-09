@@ -12,6 +12,32 @@ if DEBUG:
     utils._log_everything()
 
 
+@scenario(80)
+def test_crash_100k_compressed():
+    size = (100 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    # Generate the payload and headers for a crash
+    payload, headers = utils.multipart_encode(raw_crash)
+    crash_payload = utils.assemble_crash_payload(raw_crash, dumps)
+
+    resp = utils.post_crash(URL_SERVER, crash_payload, compressed=True)
+    print("test_crash_100k_compressed: %s" % resp)
+    resp.raise_for_status()
+
+
+@scenario(20)
+def test_crash_150k_compressed():
+    size = (150 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    # Generate the payload and headers for a crash
+    payload, headers = utils.multipart_encode(raw_crash)
+    crash_payload = utils.assemble_crash_payload(raw_crash, dumps)
+
+    resp = utils.post_crash(URL_SERVER, crash_payload, compressed=True)
+    print("test_crash_150k_compressed: %s" % resp)
+    resp.raise_for_status()
+
+
 @scenario(0)
 def test_crash_400k_uncompressed():
     size = (400 * 1024)
