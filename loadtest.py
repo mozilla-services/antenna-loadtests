@@ -5,14 +5,14 @@ from ailoads.fmwk import scenario
 import utils
 
 URL_SERVER = os.getenv('URL_SERVER',
-                       'http://antenna.stage.mozaws.net')
+                       'http://antenna.dev.mozaws.net/submit')
 DEBUG = False
 
 if DEBUG:
     utils._log_everything()
 
 
-@scenario(80)
+@scenario(0)
 def test_crash_100k_compressed():
     size = (100 * 1024)
     raw_crash, dumps = utils.generate_sized_crashes(size)
@@ -25,7 +25,7 @@ def test_crash_100k_compressed():
     resp.raise_for_status()
 
 
-@scenario(20)
+@scenario(0)
 def test_crash_150k_compressed():
     size = (150 * 1024)
     raw_crash, dumps = utils.generate_sized_crashes(size)
@@ -35,10 +35,11 @@ def test_crash_150k_compressed():
 
     resp = utils.post_crash(URL_SERVER, crash_payload, compressed=True)
     print("test_crash_150k_compressed: %s" % resp)
+    print(resp)
     resp.raise_for_status()
 
 
-@scenario(0)
+@scenario(100)
 def test_crash_400k_uncompressed():
     size = (400 * 1024)
     raw_crash, dumps = utils.generate_sized_crashes(size)
