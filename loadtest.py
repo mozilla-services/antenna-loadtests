@@ -5,7 +5,7 @@ from ailoads.fmwk import scenario
 import utils
 
 URL_SERVER = os.getenv('URL_SERVER',
-                       'http://antenna.dev.mozaws.net/submit')
+                       'https://antenna.dev.mozaws.net/submit')
 DEBUG = False
 
 if DEBUG:
