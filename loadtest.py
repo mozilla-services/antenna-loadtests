@@ -96,7 +96,7 @@ def test_crash_20mb_uncompressed():
     utils.verify_crashid(resp.text)
 
 
-@scenario(0)
+@scenario(100)
 def test_crash_greater_than_20mb_uncompressed():
     size = (50 * 1024 * 1024)
     raw_crash, dumps = utils.generate_sized_crashes(size)
@@ -110,4 +110,5 @@ def test_crash_greater_than_20mb_uncompressed():
     resp = utils.post_crash(URL_SERVER, crash_payload)
     print("test_crash_greater_than_20mb_uncompressed: HTTP %s" % resp.status_code)
     # Verify HTTP 413
-    assert 413 == resp.status_code
+
+    assert 413 == resp.status_code, "Failure - HTTP %s, Page text: %s" % (resp.status_code, resp.text)
