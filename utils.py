@@ -187,3 +187,13 @@ def generate_sized_crashes(size):
     dumps['upload_file_minidump'] = 'a' * (size - base_size)
 
     return raw_crash, dumps
+
+
+def verify_crashid(resp_text):
+    # Verify the response text begins with CrashID
+    assert resp_text.startswith("CrashID=")
+    # Verify the returned CrashID begins with bp-
+    crash_id = resp_text.split("CrashID=")[1]
+    assert crash_id.startswith("bp-")
+    # Verify the returned crash_id has a character length greater than "bp-"
+    assert 3 < len(crash_id)
