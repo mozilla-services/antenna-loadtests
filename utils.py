@@ -101,13 +101,16 @@ def multipart_encode(raw_crash, boundary=None):
             '--%s' % boundary
         ]
 
-        if isinstance(val, str):
+        if isinstance(val, (float, int, str)):
             block.append('Content-Disposition: form-data; name="%s"' % Header(key).encode())
             block.append('Content-Type: text/plain; charset=utf-8')
-        else:
+        elif isinstance(val, tuple):
             block.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (
                 (Header(key).encode(), Header(val[0]).encode())))
             block.append('Content-Type: application/octet-stream')
+        else:
+            print('Skipping %r %r' % key)
+            continue
 
         block.append('')
         block.append('')
@@ -116,6 +119,8 @@ def multipart_encode(raw_crash, boundary=None):
 
         if isinstance(val, str):
             output.write(val.encode('utf-8'))
+        elif isinstance(val, (float, int)):
+            output.write(str(val).encode('utf-8'))
         else:
             output.write(val[1].read())
 
@@ -130,7 +135,7 @@ def multipart_encode(raw_crash, boundary=None):
     return output, headers
 
 
-def post_crash(url, crash_payload, compressed=False):
+def post_crash(url, payload, headers, compressed=False):
     """Posts a crash to specified url
 
     .. Note:: This is not full-featured. It's for testing purposes only.
@@ -142,8 +147,6 @@ def post_crash(url, crash_payload, compressed=False):
     :returns: The requests Response instance.
 
     """
-    payload, headers = multipart_encode(crash_payload)
-
     if compressed:
         payload = compress(payload)
         headers['Content-Encoding'] = 'gzip'

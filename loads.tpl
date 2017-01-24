@@ -18,7 +18,7 @@ cat > loads.json <<EOF
           "run_max_time": 3600,
           "container_name": "rpappalax/antenna-loadtests:latest",
           "environment_data": [
-            "URL_SERVER=https://antenna.stage.mozaws.net",
+            "URL_SERVER=https://antenna.stage.mozaws.net/submit",
             "CONNECTIONS=100",
             "TEST_DURATION=600"
           ],
