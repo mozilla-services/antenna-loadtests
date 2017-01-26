@@ -1,43 +1,95 @@
 import os
-import uuid
 
-from ailoads.fmwk import scenario, requests
+from ailoads.fmwk import scenario
 
-from connection_handler import ConnectionHandler
+import utils
 
 URL_SERVER = os.getenv('URL_SERVER',
-                       'https://antenna.stage.mozaws.net')
-DEBUG = True
+                       'https://antenna.dev.mozaws.net/submit')
+DEBUG = False
 
-_LINE = '---------------------------------'
-_CONNECTIONS = {}
-
-PERCENTAGE = 100
-# curl -k  --data "mozstd-track-digest256;a:1" https://shavar.stage.mozaws.net/downloads # noqa
+if DEBUG:
+    utils._log_everything()
 
 
-def log_header(msg):
-    print('{0}\n{1}\n{0}'.format(_LINE, msg))
-
-
-def get_connection(id=None):
-    if id is None or id not in _CONNECTIONS:
-        id = uuid.uuid4().hex
-        conn = ConnectionHandler(id, URL_SERVER)
-        _CONNECTIONS[id] = conn
-
-    return _CONNECTIONS[id]
-
-
-@scenario(PERCENTAGE)
-def get_version():
-    """Get version from Antenna server"""
-
-    conn = get_connection('service-under-test')
-
-    if DEBUG:
-        log_header(list)
-    resp = conn.get('/__version__')
-    if DEBUG:
-        print(resp.text)
+@scenario(0)
+def test_crash_100k_compressed():
+    size = (100 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    # Generate the payload and headers for a crash
+    payload, headers = utils.multipart_encode(raw_crash)
+    # POST the dump to Antenna
+    resp = utils.post_crash(URL_SERVER, payload, headers, compressed=True)
+    print("test_crash_100k_compressed: HTTP %s" % resp.status_code)
+    # Verify HTTP 200
     resp.raise_for_status()
+    # Verify the response text contains a CrashID
+    utils.verify_crashid(resp.text)
+
+
+@scenario(0)
+def test_crash_150k_compressed():
+    size = (150 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    # Generate the payload and headers for a crash
+    payload, headers = utils.multipart_encode(raw_crash)
+    # POST the dump to Antenna
+    resp = utils.post_crash(URL_SERVER, payload, headers, compressed=True)
+    print("test_crash_150k_compressed: HTTP %s" % resp.status_code)
+    # Verify HTTP 200
+    resp.raise_for_status()
+    # Verify the response text contains a CrashID
+    utils.verify_crashid(resp.text)
+
+
+@scenario(0)
+def test_crash_400k_uncompressed():
+    size = (400 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    crash_payload = utils.assemble_crash_payload(raw_crash, dumps)
+    payload, headers = utils.multipart_encode(crash_payload)
+    # POST the dump to Antenna
+    resp = utils.post_crash(URL_SERVER, payload, headers)
+    print("test_crash_400k_uncompressed: HTTP %s" % resp.status_code)
+    # Verify HTTP 200
+    resp.raise_for_status()
+    # Verify the response text contains a CrashID
+    utils.verify_crashid(resp.text)
+
+
+@scenario(0)
+def test_crash_4mb_uncompressed():
+    size = (4 * 1024 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    crash_payload = utils.assemble_crash_payload(raw_crash, dumps)
+    payload, headers = utils.multipart_encode(crash_payload)
+
+    if len(payload) != size:
+        raise ValueError('payload size %s', len(payload))
+
+    # POST the dump to Antenna
+    resp = utils.post_crash(URL_SERVER, payload, headers)
+    print("test_crash_4mb_uncompressed: HTTP %s" % resp.status_code)
+    # Verify HTTP 200
+    resp.raise_for_status()
+    # Verify the response text contains a CrashID
+    utils.verify_crashid(resp.text)
+
+
+@scenario(0)
+def test_crash_20mb_uncompressed():
+    size = (20 * 1024 * 1024)
+    raw_crash, dumps = utils.generate_sized_crashes(size)
+    crash_payload = utils.assemble_crash_payload(raw_crash, dumps)
+    payload, headers = utils.multipart_encode(crash_payload)
+
+    if len(payload) != size:
+        raise ValueError('payload size %s', len(payload))
+
+    # POST the dump to Antenna
+    resp = utils.post_crash(URL_SERVER, payload, headers)
+    print("test_crash_20mb_uncompressed: HTTP %s" % resp.status_code)
+    # Verify HTTP 200
+    resp.raise_for_status()
+    # Verify the response text contains a CrashID
+    utils.verify_crashid(resp.text)

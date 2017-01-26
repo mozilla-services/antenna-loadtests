@@ -9,14 +9,14 @@ VENV_PIP = $(BIN)/pip3
 VENV_PYTHON = $(BIN)/python
 INSTALL = $(VENV_PIP) install
 
-URL_SERVER="https://$(PROJECT).stage.mozaws.net"
+URL_SERVER="https://$(PROJECT).dev.mozaws.net/submit"
 
 .PHONY: all check-os install-elcapitan install build
 .PHONY: configure
 .PHONY: docker-build docker-run docker-export
 .PHONY: test test-heavy refresh clean
 
-all: build configure 
+all: build configure
 
 
 # hack for OpenSSL problems on OS X El Captain:
