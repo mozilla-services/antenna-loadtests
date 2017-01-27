@@ -1,5 +1,5 @@
 # Mozilla Load-Tester
-FROM stackbrew/debian:testing
+FROM ubuntu
 
 RUN \
     apt-get update; \
@@ -9,7 +9,6 @@ RUN \
     cd /home/loads; \
     pip3 install virtualenv; \
     make build -e PYTHON=python3.5; \
-    apt-get remove -y -qq git build-essential make python3-pip python3-venv libssl-dev libffi-dev; \
     apt-get autoremove -y -qq; \
     apt-get clean -y
 
