@@ -11,7 +11,7 @@ cat > loads.json <<EOF
       "description": "4 boxes",
       "steps": [
         {
-          "name": "Shavar: Test Cluster",
+          "name": "Antenna",
           "instance_count": 4,
           "instance_region": "us-east-1",
           "instance_type": "m3.medium",
