@@ -1,4 +1,4 @@
-PROJECT="antenna"
+PROJECT="antenna-loadtests"
 OS := $(shell uname)
 HERE = $(shell pwd)
 PYTHON = python3
@@ -52,19 +52,18 @@ configure: build
 
 
 #bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 30"
-test: build
-	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 30"
-	$(BIN)/flake8 loadtest.py
+test:
+	bash -c "URL_SERVER=$(URL_SERVER) ailoads -v -d 30"
 
 test-heavy: build
 	bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 300 -u 10"
 
 
 docker-build:
-	docker build -t $(PROJECT)/loadtest .
+	docker build -t $(PROJECT) .
 
 docker-run:
-	bash -c "source loadtest.env; docker run -e TEST_DURATION=30 -e CONNECTIONS=4 $(PROJECT)/loadtest"
+	bash -c "source loadtest.env; docker run -e TEST_DURATION=30 -e CONNECTIONS=4 $(PROJECT)"
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"

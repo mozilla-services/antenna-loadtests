@@ -12,7 +12,7 @@ if DEBUG:
     utils._log_everything()
 
 
-@scenario(0)
+@scenario(100)
 def test_crash_100k_compressed():
     size = (100 * 1024)
     raw_crash, dumps = utils.generate_sized_crashes(size)

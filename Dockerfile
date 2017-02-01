@@ -1,18 +1,19 @@
 # Mozilla Load-Tester
-FROM ubuntu
+FROM python:3.5-slim
+WORKDIR /home/loads/antenna-loadtests
 
-RUN \
-    apt-get update; \
-    apt-get install -y python3-pip python3-venv git build-essential make; \
-    apt-get install -y python3-dev libssl-dev libffi-dev; \
-    git clone -b dev https://github.com/rpappalax/antenna-loadtests.git /home/loads; \
-    cd /home/loads; \
-    pip3 install virtualenv; \
-    make build -e PYTHON=python3.5; \
-    apt-get autoremove -y -qq; \
-    apt-get clean -y
+RUN apt-get update
+RUN apt-get install -y git
+RUN pip3 install -U pip
+RUN pip3 install virtualenv;
+RUN virtualenv venv -p python3;
+RUN . ./venv/bin/activate
+# RUN venv/bin/pip3 install -r requirements.txt;
+RUN venv/bin/pip3 install git+git://github.com/tarekziade/molotov.git@284e47562e17523b4504047dd05b570938596d58
+# RUN apt-get autoremove -y -qq
+# RUN apt-get clean -y
 
-WORKDIR /home/loads
+ADD . /home/loads/antenna-loadtests
 
 # run the test
-CMD venv/bin/ailoads -v -d $TEST_DURATION -u $CONNECTIONS
+CMD venv/bin/ailoads -v -d $TEST_DURATION -u $TEST_CONNECTIONS

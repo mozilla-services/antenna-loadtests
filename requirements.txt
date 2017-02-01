@@ -1,4 +1,3 @@
 six
 requests
-flake8
-https://github.com/tarekziade/ailoads/archive/master.zip
+git+git://github.com/tarekziade/molotov.git@284e47562e17523b4504047dd05b570938596d58
