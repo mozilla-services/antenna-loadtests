@@ -1,4 +1,4 @@
-PROJECT="antenna-loadtests"
+PROJECT="antenna"
 OS := $(shell uname)
 HERE = $(shell pwd)
 PYTHON = python3
@@ -9,7 +9,7 @@ VENV_PIP = $(BIN)/pip3
 VENV_PYTHON = $(BIN)/python
 INSTALL = $(VENV_PIP) install
 
-URL_SERVER="https://$(PROJECT).dev.mozaws.net/submit"
+URL_SERVER="https://$(PROJECT).stage.mozaws.net/submit"
 
 .PHONY: all check-os install-elcapitan install build
 .PHONY: configure
@@ -53,7 +53,7 @@ configure: build
 
 #bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 30"
 test:
-	bash -c "URL_SERVER=$(URL_SERVER) ailoads -v -d 30"
+	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 30"
 
 test-heavy: build
 	bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 300 -u 10"
