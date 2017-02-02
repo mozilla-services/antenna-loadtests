@@ -2,6 +2,8 @@ from email.header import Header
 import io
 import gzip
 import logging
+import random
+import string
 import uuid
 
 import requests
@@ -89,7 +91,7 @@ def multipart_encode(raw_crash, boundary=None):
 
     """
     if boundary is None:
-        boundary = uuid.uuid4().hex
+        boundary = '0a6e8e03c28e4e37abb57837f9ebf405'
 
     output = io.BytesIO()
     headers = {
@@ -135,18 +137,23 @@ def multipart_encode(raw_crash, boundary=None):
     return output, headers
 
 
-def post_crash(url, payload, headers, compressed=False):
+def post_crash(url, payload, headers, size, compressed=False):
     """Posts a crash to specified url
 
     .. Note:: This is not full-featured. It's for testing purposes only.
 
     :arg str url: The url to post to.
     :arg dict crash_payload: The raw crash and dumps as a single thing.
+    :arg int size: The expected payload size
     :arg bool compressed: Whether or not to post a compressed payload.
 
     :returns: The requests Response instance.
 
     """
+    assert len(payload) == size, (
+        'Payload is not the right size! %s vs. %s' % (len(payload), size)
+    )
+
     if compressed:
         payload = compress(payload)
         headers['Content-Encoding'] = 'gzip'
@@ -176,7 +183,15 @@ def generate(metadata=None, dumps=None):
     return raw_crash, dumps
 
 
-def generate_sized_crashes(size):
+def generate_sized_crashes(size, compressed=False):
+    """Generates a payload that's of the specified size
+
+    For compressed payloads, we want the compressed payloed to be of the
+    specified size after compressing.
+
+    This is a brute-force algorithm to figure that out.
+
+    """
     raw_crash, dumps = generate()
 
     dumps['upload_file_minidump'] = ''
@@ -185,9 +200,37 @@ def generate_sized_crashes(size):
     payload, headers = multipart_encode(crash_payload)
     base_size = len(payload)
 
-    # Create a "dump file" which is really just a bunch of 'a' such that
-    # the entire payload is equal to size
+    # Create a "dump file" which is really just a bunch of random
+    # characters such that the entire payload is equal to size
     dumps['upload_file_minidump'] = 'a' * (size - base_size)
+
+    if not compressed:
+        # This is the easy case, so we just do it and move on
+        return raw_crash, dumps
+
+    # This is the hard case. We need to generate a payload that when compressed
+    # is of the right size. So we loop.
+    def get_char():
+        return random.choice(string.ascii_letters)
+
+    compressed_size = len(compress(payload))
+    while compressed_size != size:
+        if compressed_size > size:
+            # If we're over, then drop the first 10 characters
+            dumps['upload_file_minidump'] = dumps['upload_file_minidump'][10:]
+
+        else:
+            # If we're under, then add a bunch of characters in a way that
+            # tries to "bisect" the distance we still need to cover because we
+            # want to get on with living our lives
+            num = int((size - compressed_size) / 2) + 1
+            dumps['upload_file_minidump'] += ''.join(
+                [get_char() for i in range(num)]
+            )
+
+        crash_payload = assemble_crash_payload(raw_crash, dumps)
+        payload, headers = multipart_encode(crash_payload)
+        compressed_size = len(compress(payload))
 
     return raw_crash, dumps
 

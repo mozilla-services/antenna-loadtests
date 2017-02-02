@@ -1,3 +1,3 @@
 six
 requests
-git+git://github.com/tarekziade/molotov.git@284e47562e17523b4504047dd05b570938596d58
+https://github.com/tarekziade/molotov/archive/284e47562e.zip
