@@ -137,27 +137,17 @@ def multipart_encode(raw_crash, boundary=None):
     return output, headers
 
 
-def post_crash(url, payload, headers, size, compressed=False):
+def post_crash(url, payload, headers):
     """Posts a crash to specified url
 
     .. Note:: This is not full-featured. It's for testing purposes only.
 
     :arg str url: The url to post to.
     :arg dict crash_payload: The raw crash and dumps as a single thing.
-    :arg int size: The expected payload size
-    :arg bool compressed: Whether or not to post a compressed payload.
 
     :returns: The requests Response instance.
 
     """
-    assert len(payload) == size, (
-        'Payload is not the right size! %s vs. %s' % (len(payload), size)
-    )
-
-    if compressed:
-        payload = compress(payload)
-        headers['Content-Encoding'] = 'gzip'
-
     return requests.post(
         url,
         headers=headers,
@@ -166,24 +156,7 @@ def post_crash(url, payload, headers, size, compressed=False):
     )
 
 
-def generate(metadata=None, dumps=None):
-    """Returns raw_crash, dumps"""
-    raw_crash = {
-        'ProductName': 'Firefox',
-        'Version': '1',
-    }
-    if dumps is None:
-        dumps = {
-            'upload_file_minidump': b'abcd1234'
-        }
-
-    if metadata is not None:
-        raw_crash.update(metadata)
-
-    return raw_crash, dumps
-
-
-def generate_sized_crashes(size, compressed=False):
+def generate_sized_crashes(size, dump_names, compressed):
     """Generates a payload that's of the specified size
 
     For compressed payloads, we want the compressed payloed to be of the
@@ -192,39 +165,57 @@ def generate_sized_crashes(size, compressed=False):
     This is a brute-force algorithm to figure that out.
 
     """
-    raw_crash, dumps = generate()
+    raw_crash = {
+        'ProductName': 'Firefox',
+        'Version': '1',
+    }
 
-    dumps['upload_file_minidump'] = ''
+    dumps = {}
+    for dump_name in dump_names:
+        dumps[dump_name] = ''
 
+    # Get a baseline of a crash with empty string dumps
     crash_payload = assemble_crash_payload(raw_crash, dumps)
     payload, headers = multipart_encode(crash_payload)
     base_size = len(payload)
 
-    # Create a "dump file" which is really just a bunch of random
-    # characters such that the entire payload is equal to size
-    dumps['upload_file_minidump'] = 'a' * (size - base_size)
+    # Create dump files which are just strings of 'a' such that the payload is
+    # equal to the size required
+    delta = size - base_size
+    big_string = 'a' * delta
+    segment = int(delta / len(dump_names))
 
+    # Generate a bunch of equal sized dumps--one for each dump name
+    for dump_name in dump_names:
+        dumps[dump_name] = big_string[0:segment]
+        big_string = big_string[segment:]
+
+    # Add whatever remains of the big_string to the first dump name
+    dumps[dump_names[0]] += big_string
+
+    # If we're not going to compress the payload, we're good to go
     if not compressed:
-        # This is the easy case, so we just do it and move on
         return raw_crash, dumps
 
     # This is the hard case. We need to generate a payload that when compressed
-    # is of the right size. So we loop.
+    # is of the right size. So we loop. Note that we only increase the size of
+    # the first dump.
     def get_char():
         return random.choice(string.ascii_letters)
 
+    first_dump = dump_names[0]
     compressed_size = len(compress(payload))
     while compressed_size != size:
         if compressed_size > size:
             # If we're over, then drop the first 10 characters
-            dumps['upload_file_minidump'] = dumps['upload_file_minidump'][10:]
+            dumps[first_dump] = dumps[first_dump][10:]
 
         else:
             # If we're under, then add a bunch of characters in a way that
             # tries to "bisect" the distance we still need to cover because we
             # want to get on with living our lives
             num = int((size - compressed_size) / 2) + 1
-            dumps['upload_file_minidump'] += ''.join(
+            dumps[first_dump] += ''.join(
                 [get_char() for i in range(num)]
             )
 
