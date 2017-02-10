@@ -87,33 +87,38 @@ def run_test(name, size, dump_names=None, compressed=False):
     utils.verify_crashid(resp.text)
 
 
-@scenario(20)
+@scenario(0)
 def test_crash_100k_compressed():
     run_test('test_crash_100k_compressed', 100 * 1024, compressed=True)
 
 
-@scenario(20)
+@scenario(10)
 def test_crash_150k_compressed():
     run_test('test_crash_150k_compressed', 150 * 1024, compressed=True)
 
 
-@scenario(20)
+@scenario(85)
 def test_crash_400k_uncompressed():
     run_test('test_crash_400k_uncompressed', 400 * 1024, compressed=False)
 
 
-@scenario(20)
+@scenario(5)
+def test_crash_1_5mb_uncompressed():
+    run_test('test_crash_1_5mb_uncompressed', 1.5 * 1024 * 1024, compressed=False)
+
+
+@scenario(0)
 def test_crash_4mb_uncompressed():
     run_test('test_crash_4mb_uncompressed', 4 * 1024 * 1024, compressed=False)
 
 
-@scenario(20)
+@scenario(0)
 def test_crash_20mb_uncompressed():
     run_test('test_crash_20mb_uncompressed', 20 * 1024 * 1024,
              compressed=False)
 
 
-@scenario(20)
+@scenario(0)
 def test_crash_400k_uncompressed_multiple_dumps():
     run_test('test_crash_400k_uncompressed_multiple_dumps', 400 * 1024,
              dump_names=[
