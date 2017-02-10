@@ -104,7 +104,7 @@ def test_crash_400k_uncompressed():
 
 @scenario(5)
 def test_crash_1_5mb_uncompressed():
-    run_test('test_crash_1_5mb_uncompressed', 1.5 * 1024 * 1024, compressed=False)
+    run_test('test_crash_1_5mb_uncompressed', int(1.5 * 1024 * 1024), compressed=False)
 
 
 @scenario(0)
