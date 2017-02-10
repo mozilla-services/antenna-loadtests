@@ -19,7 +19,7 @@ cat > loads.json <<EOF
           "container_name": "rpappalax/antenna-loadtests:latest",
           "environment_data": [
             "URL_SERVER=https://antenna.stage.mozaws.net/submit",
-            "CONNECTIONS=100",
+            "TEST_CONNECTIONS=100",
             "TEST_DURATION=600"
           ],
           "volume_mapping": "/var/log:/var/log/$RUN_ID:rw",
