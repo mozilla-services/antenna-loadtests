@@ -1,3 +1,4 @@
 six
-requests
-https://github.com/tarekziade/molotov/archive/284e47562e.zip
+aiohttp
+# This is after the 0.3 release, but before a 0.4 release
+https://github.com/loads/molotov/archive/550fc9e.tar.gz

@@ -4,7 +4,7 @@ generic load test based on ailoads: https://github.com/loads/ailoads
 
 ## Requirements
 
-- Python 3.4
+- Python 3.5
 
 
 ## How to run the loadtest?
