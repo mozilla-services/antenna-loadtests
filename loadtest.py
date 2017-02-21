@@ -1,15 +1,13 @@
 import os
+import sys; sys.path.append('.')
 
-from ailoads.fmwk import scenario
+from molotov import scenario
 
 import utils
 
+
 URL_SERVER = os.getenv('URL_SERVER',
                        'https://antenna.stage.mozaws.net/submit')
-DEBUG = False
-
-if DEBUG:
-    utils._log_everything()
 
 
 # Meomoized generated payloads
@@ -65,6 +63,7 @@ def get_payload_and_headers(size, dump_names=None, compressed=False):
     if compressed:
         payload = utils.compress(payload)
         headers['Content-Encoding'] = 'gzip'
+        headers['Content-Length'] = str(len(payload))
 
     # Make sure the final payload size is correct
     assert len(payload) == size, (
@@ -75,52 +74,49 @@ def get_payload_and_headers(size, dump_names=None, compressed=False):
     return payload, headers
 
 
-def run_test(name, size, dump_names=None, compressed=False):
-    payload, headers = get_payload_and_headers(size, dump_names=dump_names,
-                                               compressed=compressed)
-    resp = utils.post_crash(URL_SERVER, payload, headers)
-
-    print('%s: HTTP %s' % (name, resp.status_code))
-    # Verify HTTP 200
-    resp.raise_for_status()
-    # Verify the response text contains a CrashID
-    utils.verify_crashid(resp.text)
+async def run_test(name, session, size, dump_names=None, compressed=False):
+    payload, headers = get_payload_and_headers(size, dump_names=dump_names, compressed=compressed)
+    async with session.post(URL_SERVER, headers=headers, data=payload,
+                            compress=False, allow_redirects=True) as resp:
+        # Verify HTTP 200
+        assert resp.status == 200
+        # Verify the response text contains a CrashID
+        utils.verify_crashid(await resp.text())
 
 
 @scenario(0)
-def test_crash_100k_compressed():
-    run_test('test_crash_100k_compressed', 100 * 1024, compressed=True)
+async def _test_crash_100k_compressed(session):
+    await run_test('test_crash_100k_compressed', session, 100 * 1024, compressed=True)
 
 
 @scenario(10)
-def test_crash_150k_compressed():
-    run_test('test_crash_150k_compressed', 150 * 1024, compressed=True)
+async def _test_crash_150k_compressed(session):
+    await run_test('test_crash_150k_compressed', session, 150 * 1024, compressed=True)
 
 
-@scenario(85)
-def test_crash_400k_uncompressed():
-    run_test('test_crash_400k_uncompressed', 400 * 1024, compressed=False)
+@scenario(60)
+async def _test_crash_400k_uncompressed(session):
+    await run_test('test_crash_400k_uncompressed', session, 400 * 1024, compressed=False)
 
 
 @scenario(5)
-def test_crash_1_5mb_uncompressed():
-    run_test('test_crash_1_5mb_uncompressed', int(1.5 * 1024 * 1024), compressed=False)
+async def _test_crash_1_5mb_uncompressed(session):
+    await run_test('test_crash_1_5mb_uncompressed', session, int(1.5 * 1024 * 1024), compressed=False)
 
 
 @scenario(0)
-def test_crash_4mb_uncompressed():
-    run_test('test_crash_4mb_uncompressed', 4 * 1024 * 1024, compressed=False)
+async def _test_crash_4mb_uncompressed(session):
+    await run_test('test_crash_4mb_uncompressed', session, 4 * 1024 * 1024, compressed=False)
 
 
 @scenario(0)
-def test_crash_20mb_uncompressed():
-    run_test('test_crash_20mb_uncompressed', 20 * 1024 * 1024,
-             compressed=False)
+async def _test_crash_20mb_uncompressed(session):
+    await run_test('test_crash_20mb_uncompressed', session, 20 * 1024 * 1024, compressed=False)
 
 
-@scenario(0)
-def test_crash_400k_uncompressed_multiple_dumps():
-    run_test('test_crash_400k_uncompressed_multiple_dumps', 400 * 1024,
+@scenario(25)
+async def _test_crash_400k_uncompressed_multiple_dumps(session):
+    await run_test('test_crash_400k_uncompressed_multiple_dumps', session, 400 * 1024,
              dump_names=[
                  'upload_file_minidump',
                  'upload_file_minidump_browser',

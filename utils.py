@@ -1,28 +1,10 @@
 from email.header import Header
 import io
 import gzip
-import logging
 import random
 import string
-import uuid
 
-import requests
 import six
-
-
-def _log_everything():
-    # Set up all the debug logging for grossest possible output
-    from http.client import HTTPConnection
-    HTTPConnection.debuglevel = 1
-
-    logging.getLogger('requests').setLevel(logging.DEBUG)
-    logging.getLogger('requests.packages.urllib3').setLevel(logging.DEBUG)
-
-
-def print_debug(resp):
-    print(resp.status_code)
-    print(resp.headers)
-    print(resp.text)
 
 
 def assemble_crash_payload(raw_crash, dumps):
@@ -52,7 +34,7 @@ def compress(multipart):
     g = gzip.GzipFile(fileobj=bio, mode='w')
     g.write(multipart)
     g.close()
-    return bio.getbuffer()
+    return bio.getvalue()
 
 
 def multipart_encode(raw_crash, boundary=None):
@@ -137,25 +119,6 @@ def multipart_encode(raw_crash, boundary=None):
     return output, headers
 
 
-def post_crash(url, payload, headers):
-    """Posts a crash to specified url
-
-    .. Note:: This is not full-featured. It's for testing purposes only.
-
-    :arg str url: The url to post to.
-    :arg dict crash_payload: The raw crash and dumps as a single thing.
-
-    :returns: The requests Response instance.
-
-    """
-    return requests.post(
-        url,
-        headers=headers,
-        data=payload,
-        allow_redirects=True
-    )
-
-
 def generate_sized_crashes(size, dump_names, compressed):
     """Generates a payload that's of the specified size
 
@@ -228,9 +191,4 @@ def generate_sized_crashes(size, dump_names, compressed):
 
 def verify_crashid(resp_text):
     # Verify the response text begins with CrashID
-    assert resp_text.startswith("CrashID=")
-    # Verify the returned CrashID begins with bp-
-    crash_id = resp_text.split("CrashID=")[1]
-    assert crash_id.startswith("bp-")
-    # Verify the returned crash_id has a character length greater than "bp-"
-    assert 3 < len(crash_id)
+    assert resp_text.startswith("CrashID=bp-") and len(resp_text) > 11, 'bad crashid: %s' % resp_text

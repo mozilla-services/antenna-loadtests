@@ -46,18 +46,14 @@ build: $(VENV_PYTHON) install-elcapitan install
 clean-env:
 	@rm -f loadtest.env
 
-
 configure: build
 	@bash loads.tpl
 
-
-#bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 30"
-test:
-	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 30"
+test: build
+	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -d 10 -cx loadtest.py"
 
 test-heavy: build
-	bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/ailoads -v -d 300 -u 10"
-
+	bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/molotov -p 10 -d 300 -cx loadtest.py"
 
 docker-build:
 	docker build -t $(PROJECT) .
@@ -67,7 +63,6 @@ docker-run:
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"
-
 
 clean: refresh
 	@rm -fr venv/ __pycache__/ loadtest.env
