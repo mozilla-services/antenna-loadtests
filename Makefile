@@ -1,4 +1,4 @@
-PROJECT="antenna"
+PROJECT="antenna-loadtest"
 OS := $(shell uname)
 HERE = $(shell pwd)
 PYTHON = python3
