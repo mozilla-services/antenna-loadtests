@@ -1,4 +1,4 @@
-PROJECT="antenna-loadtest"
+PROJECT="antenna"
 OS := $(shell uname)
 HERE = $(shell pwd)
 PYTHON = python3
@@ -9,7 +9,7 @@ VENV_PIP = $(BIN)/pip3
 VENV_PYTHON = $(BIN)/python
 INSTALL = $(VENV_PIP) install
 
-URL_SERVER="https://$(PROJECT).stage.mozaws.net/submit"
+URL_SERVER="https://antenna-loadtest.stage.mozaws.net/submit"
 
 .PHONY: all check-os install-elcapitan install build
 .PHONY: configure
@@ -59,7 +59,7 @@ docker-build:
 	docker build -t $(PROJECT) .
 
 docker-run:
-	bash -c "source loadtest.env; docker run -e TEST_DURATION=30 -e CONNECTIONS=4 $(PROJECT)"
+	bash -c "source loadtest.env; docker run -e TEST_DURATION=30 -e TEST_CONNECTIONS=4 -e TEST_PROCESSES=3 $(PROJECT)"
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"

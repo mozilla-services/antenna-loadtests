@@ -1,19 +1,18 @@
 # Mozilla Load-Tester
 FROM python:3.5-slim
-WORKDIR /home/loads/antenna-loadtests
 
+ARG URL_TEST_REPO
+ARG NAME_TEST_REPO
+
+# deps
 RUN apt-get update
-RUN apt-get install -y git
-RUN pip3 install -U pip
-RUN pip3 install virtualenv;
-RUN virtualenv venv -p python3;
-RUN . ./venv/bin/activate
-# RUN venv/bin/pip3 install -r requirements.txt;
-RUN venv/bin/pip3 install git+git://github.com/tarekziade/molotov.git@284e47562e17523b4504047dd05b570938596d58
-# RUN apt-get autoremove -y -qq
-# RUN apt-get clean -y
+RUN pip3 install https://github.com/loads/molotov/archive/master.zip
+RUN pip3 install querystringsafe_base64==0.2.0
+RUN pip3 install six 
+RUN apt-get install -y redis-server
 
-ADD . /home/loads/antenna-loadtests
+WORKDIR /molotov
+ADD . /molotov
 
 # run the test
-CMD venv/bin/ailoads -v -d $TEST_DURATION -u $TEST_CONNECTIONS
+CMD redis-server --daemonize yes; molotov -cx -p $TEST_PROCESSES -d $TEST_DURATION -w $TEST_CONNECTIONS loadtest.py
