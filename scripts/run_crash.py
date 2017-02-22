@@ -4,11 +4,11 @@ headers = {
 }
 
 files = {
-    'Host': 'antenna.stage.mozaws.net',
+    'Host': 'antenna-loadtest.stage.mozaws.net',
     'Content-Type': 'multipart/form-data',
     'ProductName': 'Firefox',
     'Version': '1',
-    'upload_file_minidump': open('small.dmp', 'rb')
+    'upload_file_minidump': open('../small.dmp', 'rb')
 }
 
 

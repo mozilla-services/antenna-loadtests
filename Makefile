@@ -1,15 +1,17 @@
-PROJECT="antenna"
+PROJECT=antenna
 OS := $(shell uname)
 HERE = $(shell pwd)
 PYTHON = python3
 VTENV_OPTS = --python $(PYTHON)
 
+# load env vars
+include loadtest.env
+export $(shell sed 's/=.*//' loadtest.env)
+
 BIN = $(HERE)/venv/bin
 VENV_PIP = $(BIN)/pip3
 VENV_PYTHON = $(BIN)/python
 INSTALL = $(VENV_PIP) install
-
-URL_SERVER="https://antenna-loadtest.stage.mozaws.net/submit"
 
 .PHONY: all check-os install-elcapitan install build
 .PHONY: configure
@@ -44,22 +46,23 @@ install:
 build: $(VENV_PYTHON) install-elcapitan install
 
 clean-env:
+	@cp loadtest.env loadtest.env.OLD
 	@rm -f loadtest.env
 
 configure: build
 	@bash loads.tpl
 
 test: build
-	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -d 10 -cx loadtest.py"
+	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -d $(TEST_DURATION) -cx loadtest.py"
 
 test-heavy: build
-	bash -c "source loadtest.env && URL_SERVER=$(URL_SERVER) $(BIN)/molotov -p 10 -d 300 -cx loadtest.py"
+	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -p $(TEST_PROCESSES_HEAVY) -d $(TEST_DURATION_HEAVY) -w $(TEST_CONNECTIONS_HEAVY) -cx loadtest.py"
 
 docker-build:
 	docker build -t $(PROJECT) .
 
 docker-run:
-	bash -c "source loadtest.env; docker run -e TEST_DURATION=30 -e TEST_CONNECTIONS=4 -e TEST_PROCESSES=3 $(PROJECT)"
+	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) $(PROJECT)"
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"
