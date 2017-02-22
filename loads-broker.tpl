@@ -1,13 +1,13 @@
 #!/bin/bash
 source molotov.env && \
-echo "Building loads.json" && \
-cat > loads.json <<EOF
+echo "Building loads-broker.json" && \
+cat > loads-broker.json <<EOF
 {
-  "name": "Antenna Server Testing",
+  "name": "Loadtest: Antenna Server Testing",
   "plans": [
 
     {
-      "name": "4 Servers",
+      "name": "Loadtest:4 Servers",
       "description": "4 boxes",
       "steps": [
         {
@@ -16,9 +16,9 @@ cat > loads.json <<EOF
           "instance_region": "us-east-1",
           "instance_type": "m3.medium",
           "run_max_time": 3600,
-          "container_name": "rpappalax/antenna-loadtests:latest",
+          "container_name": "firefoxtesteng/antenna-loadtests:latest",
           "environment_data": [
-            "URL_SERVER=https://antenna.stage.mozaws.net/submit",
+            "URL_SERVER=https://antenna-loadtest.stage.mozaws.net/submit",
             "TEST_CONNECTIONS=100",
             "TEST_DURATION=600"
           ],
