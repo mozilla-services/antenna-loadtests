@@ -58,7 +58,7 @@ test-heavy: build
 	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -p $(TEST_PROCESSES_HEAVY) -d $(TEST_DURATION_HEAVY) -w $(TEST_CONNECTIONS_HEAVY) -cx loadtest.py"
 
 docker-build:
-	docker build -t $(PROJECT) .
+	docker build -t firefoxtesteng/$(PROJECT)-loadtests .
 
 docker-run:
 	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) $(PROJECT)"
