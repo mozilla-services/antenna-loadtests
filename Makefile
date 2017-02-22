@@ -4,8 +4,8 @@ PYTHON = python3
 VTENV_OPTS = --python $(PYTHON)
 
 # load env vars
-include loadtest.env
-export $(shell sed 's/=.*//' loadtest.env)
+include molotov.env
+export $(shell sed 's/=.*//' molotov.env)
 
 BIN = $(HERE)/venv/bin
 VENV_PIP = $(BIN)/pip3
@@ -15,7 +15,7 @@ INSTALL = $(VENV_PIP) install
 .PHONY: all check-os install-elcapitan install build
 .PHONY: configure
 .PHONY: docker-build docker-run docker-export
-.PHONY: test test-heavy refresh clean
+.PHONY: test test-heavy clean
 
 all: build configure
 
@@ -45,8 +45,9 @@ install:
 build: $(VENV_PYTHON) install-elcapitan install
 
 clean-env:
-	@cp loadtest.env loadtest.env.OLD
-	@rm -f loadtest.env
+	@cp molotov.env molotov.env.OLD
+	@rm -f molotov.env
+	@touch molotov.env
 
 configure: build
 	@bash loads.tpl
@@ -66,5 +67,5 @@ docker-run:
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"
 
-clean: refresh
-	@rm -fr venv/ __pycache__/ loadtest.env
+clean: 
+	@rm -fr venv/ __pycache__/ 

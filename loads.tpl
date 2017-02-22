@@ -1,5 +1,5 @@
 #!/bin/bash
-source loadtest.env && \
+source molotov.env && \
 echo "Building loads.json" && \
 cat > loads.json <<EOF
 {
