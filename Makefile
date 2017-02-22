@@ -1,4 +1,3 @@
-PROJECT=antenna
 OS := $(shell uname)
 HERE = $(shell pwd)
 PYTHON = python3
