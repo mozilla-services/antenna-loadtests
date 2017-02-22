@@ -5,7 +5,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-loadtest.env
 loads.json
 
 # C extensions

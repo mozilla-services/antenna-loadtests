@@ -6,8 +6,9 @@ from molotov import scenario
 import utils
 
 
-URL_SERVER = os.getenv('URL_SERVER',
-                       'https://antenna.stage.mozaws.net/submit')
+url_server = os.getenv('URL_SERVER',
+                       'https://antenna-loadtest.stage.mozaws.net')
+URL_SERVER = '{0}/submit'.format(url_server)
 
 
 # Meomoized generated payloads
