@@ -50,7 +50,7 @@ clean-env:
 	@touch molotov.env
 
 configure: build
-	@bash loads.tpl
+	@bash loads-broker.tpl
 
 test: build
 	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -d $(TEST_DURATION) -cx loadtest.py"
