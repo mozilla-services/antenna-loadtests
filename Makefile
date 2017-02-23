@@ -13,9 +13,10 @@ VENV_PYTHON = $(BIN)/python
 INSTALL = $(VENV_PIP) install
 
 .PHONY: all check-os install-elcapitan install build
-.PHONY: configure
 .PHONY: docker-build docker-run docker-export
-.PHONY: test test-heavy clean
+.PHONY: test test-heavy 
+.PHONY: loads-config 
+.PHONY: clean clean-env
 
 all: build configure
 
@@ -56,7 +57,7 @@ docker-build:
 	docker build -t firefoxtesteng/$(PROJECT)-loadtests .
 
 docker-run:
-	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) $(PROJECT)"
+	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) firefoxtesteng/$(PROJECT)-loadtests"
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"
