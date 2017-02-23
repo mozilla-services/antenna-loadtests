@@ -1,7 +1,3 @@
-#!/bin/bash
-source molotov.env && \
-echo "Building loads-broker.json" && \
-cat > loads-broker.json <<EOF
 {
   "name": "Loadtest: Antenna Server Testing",
   "plans": [
@@ -19,15 +15,13 @@ cat > loads-broker.json <<EOF
           "container_name": "firefoxtesteng/antenna-loadtests:latest",
           "environment_data": [
             "URL_SERVER=https://antenna-loadtest.stage.mozaws.net",
-            "TEST_PROCESSES=10",
-            "TEST_DURATION=600",
-            "TEST_CONNECTIONS=100"
+            "TEST_CONNECTIONS=100",
+            "TEST_DURATION=600"
           ],
-          "volume_mapping": "/var/log:/var/log/$RUN_ID:rw",
+          "volume_mapping": "/var/log:/var/log/:rw",
           "docker_series": "antenna_tests"
         }
       ]
     }
   ]
 }
-EOF

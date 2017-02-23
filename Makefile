@@ -13,9 +13,10 @@ VENV_PYTHON = $(BIN)/python
 INSTALL = $(VENV_PIP) install
 
 .PHONY: all check-os install-elcapitan install build
-.PHONY: configure
 .PHONY: docker-build docker-run docker-export
-.PHONY: test test-heavy clean
+.PHONY: test test-heavy 
+.PHONY: loads-config 
+.PHONY: clean clean-env
 
 all: build configure
 
@@ -44,13 +45,6 @@ install:
 
 build: $(VENV_PYTHON) install-elcapitan install
 
-clean-env:
-	@cp molotov.env molotov.env.OLD
-	@rm -f molotov.env
-	@touch molotov.env
-
-configure: build
-	@bash loads-broker.tpl
 
 test: build
 	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -d $(TEST_DURATION) -cx loadtest.py"
@@ -58,14 +52,26 @@ test: build
 test-heavy: build
 	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -p $(TEST_PROCESSES_HEAVY) -d $(TEST_DURATION_HEAVY) -w $(TEST_CONNECTIONS_HEAVY) -cx loadtest.py"
 
+
 docker-build:
 	docker build -t firefoxtesteng/$(PROJECT)-loadtests .
 
 docker-run:
-	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) $(PROJECT)"
+	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) firefoxtesteng/$(PROJECT)-loadtests"
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"
 
+
+loads-config:
+	@bash loads-broker.tpl
+
+
 clean: 
 	@rm -fr venv/ __pycache__/ 
+
+clean-env:
+	@cp molotov.env molotov.env.OLD
+	@rm -f molotov.env
+	@touch molotov.env
+
