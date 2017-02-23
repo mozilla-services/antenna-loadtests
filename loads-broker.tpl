@@ -7,7 +7,7 @@ cat > loads-broker.json <<EOF
   "plans": [
 
     {
-      "name": "Loadtest:4 Servers",
+      "name": "Loadtest",
       "description": "4 boxes",
       "steps": [
         {
@@ -18,12 +18,13 @@ cat > loads-broker.json <<EOF
           "run_max_time": 3600,
           "container_name": "firefoxtesteng/antenna-loadtests:latest",
           "environment_data": [
-            "URL_SERVER=https://antenna-loadtest.stage.mozaws.net/submit",
-            "TEST_CONNECTIONS=100",
-            "TEST_DURATION=600"
+            "URL_SERVER=https://antenna-loadtest.stage.mozaws.net",
+            "TEST_PROCESSES=10",
+            "TEST_DURATION=600",
+            "TEST_CONNECTIONS=100"
           ],
           "volume_mapping": "/var/log:/var/log/$RUN_ID:rw",
-          "docker_series": "antenna_tests
+          "docker_series": "antenna_tests"
         }
       ]
     }

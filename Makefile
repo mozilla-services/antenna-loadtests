@@ -44,19 +44,13 @@ install:
 
 build: $(VENV_PYTHON) install-elcapitan install
 
-clean-env:
-	@cp molotov.env molotov.env.OLD
-	@rm -f molotov.env
-	@touch molotov.env
-
-configure: build
-	@bash loads-broker.tpl
 
 test: build
 	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -d $(TEST_DURATION) -cx loadtest.py"
 
 test-heavy: build
 	bash -c "URL_SERVER=$(URL_SERVER) $(BIN)/molotov -p $(TEST_PROCESSES_HEAVY) -d $(TEST_DURATION_HEAVY) -w $(TEST_CONNECTIONS_HEAVY) -cx loadtest.py"
+
 
 docker-build:
 	docker build -t firefoxtesteng/$(PROJECT)-loadtests .
@@ -67,5 +61,16 @@ docker-run:
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"
 
+
+loads-config:
+	@bash loads-broker.tpl
+
+
 clean: 
 	@rm -fr venv/ __pycache__/ 
+
+clean-env:
+	@cp molotov.env molotov.env.OLD
+	@rm -f molotov.env
+	@touch molotov.env
+
