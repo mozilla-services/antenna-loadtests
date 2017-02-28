@@ -57,7 +57,7 @@ docker-build:
 	docker build -t firefoxtesteng/$(PROJECT)-loadtests .
 
 docker-run:
-	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) firefoxtesteng/$(PROJECT)-loadtests"
+	bash -c "docker run -e URL_SERVER=$(URL_SERVER) -e TEST_PROCESSES=$(TEST_PROCESSES) -e TEST_DURATION=$(TEST_DURATION) -e TEST_CONNECTIONS=$(TEST_CONNECTIONS) -e VERBOSE=$(VERBOSE) firefoxtesteng/$(PROJECT)-loadtests"
 
 docker-export:
 	docker save "$(PROJECT)/loadtest:latest" | bzip2> "$(PROJECT)-latest.tar.bz2"

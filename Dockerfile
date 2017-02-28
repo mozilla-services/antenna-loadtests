@@ -12,4 +12,4 @@ WORKDIR /molotov
 ADD . /molotov
 
 # run the test
-CMD redis-server --daemonize yes; URL_SERVER=$URL_SERVER molotov -cx -p $TEST_PROCESSES -d $TEST_DURATION -w $TEST_CONNECTIONS loadtest.py
+CMD redis-server --daemonize yes; URL_SERVER=$URL_SERVER molotov -c $VERBOSE -p $TEST_PROCESSES -d $TEST_DURATION -w $TEST_CONNECTIONS loadtest.py
