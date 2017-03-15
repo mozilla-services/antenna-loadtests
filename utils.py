@@ -190,5 +190,7 @@ def generate_sized_crashes(size, dump_names, compressed):
 
 
 def verify_crashid(resp_text):
+    # print CrashID to stdout
+    print(resp_text)
     # Verify the response text begins with CrashID
     assert resp_text.startswith("CrashID=bp-") and len(resp_text) > 11, 'bad crashid: %s' % resp_text
